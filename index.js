@@ -1,3 +1,5 @@
+require('./config')
+const { Song } = require('./models');
 const { ApolloServer, gql } = require('apollo-server');
 
 const songs = [
@@ -10,7 +12,6 @@ const songs = [
 
 const typeDefs = gql`
     type Song {
-        id: ID!
         title: String
         keysPlayed: [String]
     }
@@ -26,18 +27,21 @@ const typeDefs = gql`
 
 const resolvers = {
     Query: {
-        songs: () => songs,
+        songs: async () => await Song.find({}).exec(),
     },
     Mutation: {
-        addSong: (_, { title, keysPlayed }) => {
-            const newSong = { 
-                id: songs.length + 1,
-                title,
-                keysPlayed,
-            };
-            songs.push(newSong);
+        addSong: async (_, { title, keysPlayed }) => {
+            try {
+                const newSong = { 
+                    title,
+                    keysPlayed,
+                };
 
-            return newSong;
+                let response = await Song.create(newSong);
+                return response;
+            } catch(e) {
+                return e.message;
+            }
         }
     }
 }
