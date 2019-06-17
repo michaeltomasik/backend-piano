@@ -6,14 +6,28 @@ const songs = [
     {
         id: 1,
         title: 'Some song title',
-        keysPlayed: [ 'C4', 'D4', 'E4'],
+        keysPlayed: [
+          {note: 'C4', time: 0},
+          {note: 'D4', time: 1000},
+          {note: 'E4', time: 1500},
+          {note: 'F4', time: 3000}
+        ],
     }
 ];
 
 const typeDefs = gql`
+    input NoteInput {
+        note: String
+        time: Int
+    }
+    type Note {
+        note: String
+        time: Int
+    }
+
     type Song {
         title: String
-        keysPlayed: [String]
+        keysPlayed: [Note]
     }
 
     type Query {
@@ -21,7 +35,7 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        addSong(title: String, keysPlayed: [String]): Song
+        addSong(title: String, keysPlayed: [NoteInput]): Song
     }
 `
 
@@ -31,6 +45,7 @@ const resolvers = {
     },
     Mutation: {
         addSong: async (_, { title, keysPlayed }) => {
+            console.log(keysPlayed, 'keysPlayed')
             try {
                 const newSong = { 
                     title,
